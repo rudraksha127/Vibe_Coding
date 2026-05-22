@@ -1,0 +1,24 @@
+import { Router } from "express";
+import { requireAuth } from "../../middleware/requireAuth.js";
+import { validate } from "../../middleware/validate.js";
+import {
+  loginBodySchema,
+  registerBodySchema,
+  sessionParamsSchema
+} from "./auth.schema.js";
+import * as authController from "./auth.controller.js";
+
+export const authRouter = Router();
+
+authRouter.post("/register", validate({ body: registerBodySchema }), authController.register);
+authRouter.post("/login", validate({ body: loginBodySchema }), authController.login);
+authRouter.post("/refresh", authController.refresh);
+authRouter.post("/logout", requireAuth, authController.logout);
+authRouter.get("/sessions", requireAuth, authController.listSessions);
+authRouter.delete(
+  "/sessions/:id",
+  requireAuth,
+  validate({ params: sessionParamsSchema }),
+  authController.revokeSession
+);
+

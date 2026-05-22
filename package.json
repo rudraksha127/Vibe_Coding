@@ -1,0 +1,16 @@
+{
+  "name": "interviewforge-ai",
+  "version": "0.1.0",
+  "private": true,
+  "description": "InterviewForge AI full-stack workspace.",
+  "scripts": {
+    "install:all": "npm --prefix backend install && npm --prefix frontend install",
+    "dev:backend": "npm --prefix backend run dev",
+    "dev:frontend": "npm --prefix frontend run dev",
+    "build": "npm --prefix backend run build && npm --prefix frontend run build",
+    "typecheck": "npm --prefix backend run typecheck && npm --prefix frontend run typecheck",
+    "test": "npm --prefix backend test && npm --prefix frontend test",
+    "audit": "npm --prefix backend audit --audit-level=high && npm --prefix frontend audit --audit-level=high"
+  }
+}
+
