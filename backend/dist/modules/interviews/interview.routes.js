@@ -1,0 +1,14 @@
+import { Router } from "express";
+import { requireAuth } from "../../middleware/requireAuth.js";
+import { validate } from "../../middleware/validate.js";
+import { answerParamsSchema, createInterviewBodySchema, generateQuestionBodySchema, interviewParamsSchema, listInterviewQuerySchema, submitAnswerBodySchema } from "./interview.schema.js";
+import * as interviewController from "./interview.controller.js";
+export const interviewRouter = Router();
+interviewRouter.use(requireAuth);
+interviewRouter.post("/", validate({ body: createInterviewBodySchema }), interviewController.createInterviewSession);
+interviewRouter.get("/", validate({ query: listInterviewQuerySchema }), interviewController.listInterviewSessions);
+interviewRouter.get("/:id", validate({ params: interviewParamsSchema }), interviewController.getInterviewSession);
+interviewRouter.post("/:id/questions", validate({ params: interviewParamsSchema, body: generateQuestionBodySchema }), interviewController.generateQuestion);
+interviewRouter.post("/:id/questions/:questionId/answers", validate({ params: answerParamsSchema, body: submitAnswerBodySchema }), interviewController.submitAnswer);
+interviewRouter.post("/:id/complete", validate({ params: interviewParamsSchema }), interviewController.completeInterviewSession);
+interviewRouter.delete("/:id", validate({ params: interviewParamsSchema }), interviewController.deleteInterviewSession);
