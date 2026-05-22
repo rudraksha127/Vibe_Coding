@@ -1,5 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { BrainCircuit, GitBranch, LogIn, Mail, UserPlus } from "lucide-react";
+import { BrainCircuit, CheckCircle2, GitBranch, LogIn, Mail, Sparkles, UserPlus } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { Link, Navigate, useNavigate } from "react-router-dom";
@@ -8,15 +8,15 @@ import { useAuth } from "../../auth/AuthProvider";
 import { ApiClientError } from "../../lib/api/client";
 
 const loginSchema = z.object({
-  email: z.string().email(),
-  password: z.string().min(1)
+  email: z.string().email("Please enter a valid email address"),
+  password: z.string().min(1, "Password is required")
 });
 
 const registerSchema = z.object({
-  name: z.string().min(1).max(120),
-  email: z.string().email(),
-  password: z.string().min(8).max(128),
-  targetRole: z.string().min(1).max(120),
+  name: z.string().min(1, "Name is required").max(120),
+  email: z.string().email("Please enter a valid email address"),
+  password: z.string().min(8, "Password must be at least 8 characters").max(128),
+  targetRole: z.string().min(1, "Target role is required").max(120),
   experienceLevel: z.enum(["fresh_graduate", "junior", "mid", "senior", "staff", "principal"]),
   targetCompanies: z.string().max(240)
 });
@@ -46,7 +46,7 @@ export function LoginPage() {
       await login(values);
       navigate("/", { replace: true });
     } catch (caught) {
-      setError(caught instanceof ApiClientError ? caught.message : "Unable to sign in");
+      setError(caught instanceof ApiClientError ? caught.message : "Unable to sign in. Please check your credentials.");
     }
   }
 
@@ -57,29 +57,39 @@ export function LoginPage() {
           <BrainCircuit size={32} aria-hidden="true" />
           <div>
             <h1 id="login-title">InterviewForge AI</h1>
-            <p>Interview workspace</p>
+            <p>Your AI interview coach</p>
           </div>
         </div>
 
         <form className="form-stack" onSubmit={form.handleSubmit(onSubmit)}>
           <label>
             <span>Email</span>
-            <input type="email" autoComplete="email" {...form.register("email")} />
+            <input 
+              type="email" 
+              autoComplete="email" 
+              placeholder="you@example.com"
+              {...form.register("email")} 
+            />
           </label>
           <label>
             <span>Password</span>
-            <input type="password" autoComplete="current-password" {...form.register("password")} />
+            <input 
+              type="password" 
+              autoComplete="current-password" 
+              placeholder="Enter your password"
+              {...form.register("password")} 
+            />
           </label>
-          {error ? <p className="form-error">{error}</p> : null}
+          {error ? <p className="form-error" role="alert">{error}</p> : null}
           <button className="primary-button" type="submit" disabled={form.formState.isSubmitting}>
             <LogIn size={18} aria-hidden="true" />
-            Sign in
+            {form.formState.isSubmitting ? "Signing in..." : "Sign in"}
           </button>
         </form>
 
         <div className="auth-row">
-          <Link to="/register">Create account</Link>
-          <button type="button" className="ghost-button" disabled>
+          <Link to="/register">Create new account</Link>
+          <button type="button" className="ghost-button" disabled title="Coming soon">
             <GitBranch size={16} aria-hidden="true" />
             GitHub
           </button>
@@ -131,7 +141,7 @@ export function RegisterPage() {
       });
       navigate("/", { replace: true });
     } catch (caught) {
-      setError(caught instanceof ApiClientError ? caught.message : "Unable to create account");
+      setError(caught instanceof ApiClientError ? caught.message : "Unable to create account. Please try again.");
     }
   }
 
@@ -139,54 +149,54 @@ export function RegisterPage() {
     <main className="auth-screen">
       <section className="auth-panel auth-panel-wide" aria-labelledby="register-title">
         <div className="brand-lockup">
-          <Mail size={32} aria-hidden="true" />
+          <Sparkles size={32} aria-hidden="true" />
           <div>
             <h1 id="register-title">Create Workspace</h1>
-            <p>InterviewForge AI</p>
+            <p>Start your interview preparation journey</p>
           </div>
         </div>
 
         <form className="form-grid" onSubmit={form.handleSubmit(onSubmit)}>
           <label>
-            <span>Name</span>
-            <input autoComplete="name" {...form.register("name")} />
+            <span>Full name</span>
+            <input autoComplete="name" placeholder="John Doe" {...form.register("name")} />
           </label>
           <label>
             <span>Email</span>
-            <input type="email" autoComplete="email" {...form.register("email")} />
+            <input type="email" autoComplete="email" placeholder="you@example.com" {...form.register("email")} />
           </label>
           <label>
             <span>Password</span>
-            <input type="password" autoComplete="new-password" {...form.register("password")} />
+            <input type="password" autoComplete="new-password" placeholder="Min 8 characters" {...form.register("password")} />
           </label>
           <label>
             <span>Target role</span>
-            <input {...form.register("targetRole")} />
+            <input placeholder="Software Engineer" {...form.register("targetRole")} />
           </label>
           <label>
-            <span>Experience</span>
+            <span>Experience level</span>
             <select {...form.register("experienceLevel")}>
-              <option value="fresh_graduate">Fresh graduate</option>
-              <option value="junior">Junior</option>
-              <option value="mid">Mid</option>
-              <option value="senior">Senior</option>
-              <option value="staff">Staff</option>
-              <option value="principal">Principal</option>
+              <option value="fresh_graduate">Fresh graduate (0-1 years)</option>
+              <option value="junior">Junior (1-2 years)</option>
+              <option value="mid">Mid-level (2-5 years)</option>
+              <option value="senior">Senior (5-8 years)</option>
+              <option value="staff">Staff (8-12 years)</option>
+              <option value="principal">Principal (12+ years)</option>
             </select>
           </label>
           <label>
             <span>Target companies</span>
-            <input placeholder="Google, Meta, Startup" {...form.register("targetCompanies")} />
+            <input placeholder="Google, Meta, Amazon" {...form.register("targetCompanies")} />
           </label>
-          {error ? <p className="form-error grid-span">{error}</p> : null}
+          {error ? <p className="form-error grid-span" role="alert">{error}</p> : null}
           <button className="primary-button grid-span" type="submit" disabled={form.formState.isSubmitting}>
             <UserPlus size={18} aria-hidden="true" />
-            Create account
+            {form.formState.isSubmitting ? "Creating account..." : "Create account"}
           </button>
         </form>
 
         <div className="auth-row">
-          <Link to="/login">Sign in</Link>
+          <Link to="/login">Already have an account? Sign in</Link>
         </div>
       </section>
       <InterviewPreview />
@@ -212,8 +222,26 @@ function InterviewPreview() {
         </div>
       </div>
       <div className="score-strip">
-        <strong>84</strong>
-        <span>IRS</span>
+        <div>
+          <strong>84</strong>
+          <span>Interview Readiness Score</span>
+        </div>
+        <CheckCircle2 size={24} aria-hidden="true" style={{ color: 'var(--green)' }} />
+      </div>
+      <div style={{
+        position: 'absolute',
+        bottom: '90px',
+        left: '28px',
+        right: '28px',
+        padding: '12px',
+        borderRadius: '8px',
+        background: 'rgba(255,255,255,0.9)',
+        fontSize: '13px',
+        lineHeight: '1.5',
+        color: 'var(--ink)'
+      }}>
+        <strong style={{ display: 'block', marginBottom: '4px', color: 'var(--green-strong)' }}>AI-Powered Practice</strong>
+        Get personalized feedback, adaptive questions, and track your improvement over time.
       </div>
     </aside>
   );
