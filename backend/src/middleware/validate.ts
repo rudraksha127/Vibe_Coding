@@ -1,5 +1,5 @@
 import type { NextFunction, Request, Response } from "express";
-import type { ZodError, ZodType } from "zod";
+import { z, type ZodType } from "zod";
 import { AppError, type FieldErrors } from "../utils/appError.js";
 
 type RequestSchemas = {
@@ -22,17 +22,36 @@ export function validate(schemas: RequestSchemas) {
       }
       next();
     } catch (error) {
-      next(new AppError(400, "VALIDATION_ERROR", "Validation failed", toFieldErrors(error as ZodError)));
+      if (error instanceof z.ZodError) {
+        next(new AppError(400, "VALIDATION_ERROR", "Validation failed", toFieldErrors(error)));
+      } else {
+        const fields: FieldErrors = { request: [error instanceof Error ? error.message : String(error)] };
+        next(new AppError(400, "VALIDATION_ERROR", "Validation failed", fields));
+      }
     }
   };
 }
 
-function toFieldErrors(error: ZodError): FieldErrors {
+function toFieldErrors(error: z.ZodError): FieldErrors {
   const fields: FieldErrors = {};
 
-  for (const issue of error.issues) {
-    const key = issue.path.join(".") || "request";
-    fields[key] = [...(fields[key] ?? []), issue.message];
+  try {
+    const issues = error.issues ?? [];
+    if (!Array.isArray(issues)) {
+       fields["request"] = ["Validation failed"];
+       return fields;
+    }
+
+    for (const issue of issues) {
+      const key = issue.path?.join(".") || "request";
+      fields[key] = [...(fields[key] ?? []), issue.message];
+    }
+  } catch {
+    fields["request"] = [error.message ?? "Validation failed"];
+  }
+
+  if (Object.keys(fields).length === 0) {
+    fields["request"] = [error.message ?? "Validation failed"];
   }
 
   return fields;
