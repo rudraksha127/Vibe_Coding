@@ -1,6 +1,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { CheckCircle2, FileCheck2, Loader2, RefreshCw, Save, Sparkles, TrendingUp, AlertCircle } from "lucide-react";
+import type { CSSProperties } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { ApiClientError } from "../../lib/api/client";
@@ -64,18 +65,9 @@ export function ResumePage() {
             <FileCheck2 size={20} aria-hidden="true" />
           </div>
           
-          <div style={{ 
-            background: 'var(--mint)', 
-            padding: '12px', 
-            borderRadius: '6px', 
-            fontSize: '13px',
-            color: 'var(--green-strong)',
-            display: 'flex',
-            gap: '8px',
-            alignItems: 'flex-start'
-          }}>
-            <Sparkles size={16} style={{ flexShrink: 0, marginTop: '2px' }} />
-            <p style={{ margin: 0 }}>
+          <div className="resume-hint">
+            <Sparkles size={16} aria-hidden="true" />
+            <p>
               Paste your resume text below. Our AI will extract skills, experience, and provide actionable improvement suggestions.
             </p>
           </div>
@@ -107,14 +99,7 @@ export function ResumePage() {
             <span>Set as primary resume for interview questions</span>
           </label>
           {error ? (
-            <div style={{ 
-              display: 'flex', 
-              alignItems: 'center', 
-              gap: '6px', 
-              color: 'var(--coral)',
-              fontSize: '14px',
-              fontWeight: '600'
-            }}>
+            <div className="form-error-row">
               <AlertCircle size={16} />
               {error}
             </div>
@@ -132,46 +117,28 @@ export function ResumePage() {
         <div className="panel">
           <div className="panel-header">
             <h2>Saved Resumes</h2>
-            <span style={{ 
-              background: 'var(--green-strong)', 
-              color: 'white', 
-              padding: '2px 8px', 
-              borderRadius: '12px', 
-              fontSize: '12px',
-              fontWeight: '700'
-            }}>
-              {resumes.data?.length ?? 0}
-            </span>
+            <span className="count-pill">{resumes.data?.length ?? 0}</span>
           </div>
           <div className="list-stack">
             {resumes.isLoading ? (
-              <div style={{ textAlign: 'center', padding: '40px', color: 'var(--muted)' }}>
-                <Loader2 className="spin" size={24} style={{ marginBottom: '8px' }} />
+              <div className="center-stack panel-loading">
+                <Loader2 className="spin icon" size={24} />
                 <p>Loading resumes...</p>
               </div>
             ) : (resumes.data ?? []).map((resume) => (
-              <article className="resume-item" key={resume._id} style={{ 
-                borderLeft: resume.isPrimary ? '4px solid var(--green)' : 'none',
-                paddingLeft: resume.isPrimary ? '10px' : '14px'
-              }}>
+              <article
+                className={`resume-item${resume.isPrimary ? " resume-item-primary" : ""}`}
+                key={resume._id}
+              >
                 <div className="resume-title-row">
                   <div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <div className="kpi-row">
                       <strong>{resume.title}</strong>
                       {resume.isPrimary && (
-                        <span style={{ 
-                          fontSize: '11px', 
-                          background: 'var(--mint)', 
-                          color: 'var(--green-strong)', 
-                          padding: '2px 6px', 
-                          borderRadius: '4px',
-                          fontWeight: '700'
-                        }}>
-                          PRIMARY
-                        </span>
+                        <span className="resume-primary">PRIMARY</span>
                       )}
                     </div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginTop: '4px' }}>
+                    <div className="kpi-row" style={{ marginTop: '4px' }}>
                       <span>
                         <ATSScore score={resume.atsScore} />
                       </span>
@@ -191,30 +158,24 @@ export function ResumePage() {
 
                 {/* Skills */}
                 <div className="signal-grid" style={{ marginTop: '12px' }}>
-                  <span style={{ fontSize: '12px', fontWeight: '700', color: 'var(--muted)', width: '100%', marginBottom: '4px' }}>
-                    Detected Skills
-                  </span>
+                  <span className="resume-section-label">Detected Skills</span>
                   {(resume.parsed?.skills ?? []).slice(0, 8).map((skill) => (
                     <span className="signal-chip" key={skill}>
                       {skill}
                     </span>
                   ))}
                   {(resume.parsed?.skills ?? []).length === 0 && (
-                    <span style={{ fontSize: '13px', color: 'var(--muted)', fontStyle: 'italic' }}>
-                      No skills detected yet
-                    </span>
+                    <span className="muted-italic">No skills detected yet</span>
                   )}
                 </div>
 
                 {/* Suggestions */}
                 {resume.suggestions.length > 0 && (
                   <div style={{ marginTop: '12px' }}>
-                    <span style={{ fontSize: '12px', fontWeight: '700', color: 'var(--muted)', display: 'block', marginBottom: '6px' }}>
-                      Improvement Suggestions
-                    </span>
+                    <span className="resume-section-label">Improvement Suggestions</span>
                     {resume.suggestions.slice(0, 2).map((suggestion, idx) => (
-                      <p className="coaching-note" key={idx} style={{ marginBottom: '6px', fontSize: '13px' }}>
-                        <TrendingUp size={14} style={{ marginRight: '6px', verticalAlign: 'middle' }} />
+                      <p className="coaching-note note-compact" key={idx}>
+                        <TrendingUp size={14} className="inline-icon" />
                         {suggestion}
                       </p>
                     ))}
@@ -223,16 +184,10 @@ export function ResumePage() {
               </article>
             ))}
             {!resumes.isLoading && resumes.data?.length === 0 ? (
-              <div style={{ 
-                textAlign: 'center', 
-                padding: '40px 20px', 
-                color: 'var(--muted)' 
-              }}>
-                <FileCheck2 size={32} style={{ marginBottom: '12px', opacity: 0.5 }} />
-                <p style={{ fontWeight: '600' }}>No resumes saved</p>
-                <p style={{ fontSize: '13px', marginTop: '4px' }}>
-                  Add your first resume to get started
-                </p>
+              <div className="empty-state panel-loading">
+                <FileCheck2 size={32} className="resume-empty-icon" />
+                <p>No resumes saved</p>
+                <small>Add your first resume to get started</small>
               </div>
             ) : null}
           </div>
@@ -258,14 +213,7 @@ function ATSScore({ score }: { score: number }) {
   }
 
   return (
-    <span style={{ 
-      display: 'inline-flex',
-      alignItems: 'center',
-      gap: '4px',
-      fontSize: '13px',
-      fontWeight: '700',
-      color
-    }}>
+    <span className="ats-score" style={{ "--ats-color": color } as CSSProperties}>
       <CheckCircle2 size={14} />
       ATS Score: {score}/100 ({label})
     </span>

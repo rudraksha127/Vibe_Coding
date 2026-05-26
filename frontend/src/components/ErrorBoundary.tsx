@@ -20,39 +20,19 @@ export class ErrorBoundary extends Component<PropsWithChildren, ErrorBoundarySta
   override render(): ReactNode {
     if (this.state.hasError) {
       return (
-        <main className="screen-center" style={{ background: 'var(--coral-light)', minHeight: '100vh' }}>
-          <section 
-            className="status-panel" 
-            aria-live="polite"
-            style={{
-              maxWidth: '420px',
-              padding: '40px',
-              textAlign: 'center',
-              border: '1px solid var(--coral)',
-              background: 'var(--paper)'
-            }}
-          >
-            <div style={{ 
-              width: '64px', 
-              height: '64px', 
-              borderRadius: '50%', 
-              background: 'var(--coral-light)', 
-              display: 'flex', 
-              alignItems: 'center', 
-              justifyContent: 'center',
-              margin: '0 auto 20px'
-            }}>
+        <main className="screen-center screen-error">
+          <section className="status-panel status-panel-tight status-panel-error" aria-live="polite">
+            <div className="error-icon">
               <AlertTriangle size={32} color="var(--coral)" aria-hidden="true" />
             </div>
-            <h1 style={{ marginBottom: '12px', fontSize: '24px' }}>Something went wrong</h1>
-            <p style={{ color: 'var(--muted)', marginBottom: '24px', lineHeight: '1.6' }}>
+            <h1 className="error-title">Something went wrong</h1>
+            <p className="error-message">
               {this.state.error?.message || 'An unexpected error occurred. Please try again.'}
             </p>
             <button 
               type="button" 
               className="primary-button"
               onClick={() => window.location.reload()}
-              style={{ display: 'inline-flex', alignItems: 'center', gap: '8px' }}
             >
               <RefreshCw size={18} />
               Reload Page
@@ -65,4 +45,3 @@ export class ErrorBoundary extends Component<PropsWithChildren, ErrorBoundarySta
     return this.props.children;
   }
 }
-

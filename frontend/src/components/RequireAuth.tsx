@@ -8,49 +8,21 @@ export function RequireAuth() {
 
   if (isBootstrapping) {
     return (
-      <main className="screen-center" style={{ 
-        background: 'linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)',
-        minHeight: '100vh'
-      }}>
-        <div style={{ textAlign: 'center' }}>
-          <div style={{ 
-            position: 'relative', 
-            display: 'inline-block',
-            marginBottom: '24px'
-          }}>
+      <main className="screen-center">
+        <section className="status-panel status-panel-tight" aria-live="polite">
+          <div className="loading-mark">
             <BrainCircuit 
               size={56} 
               aria-hidden="true" 
-              style={{ 
-                color: 'var(--green-strong)',
-                opacity: 0.8
-              }} 
+              className="loading-logo"
             />
-            <div style={{
-              position: 'absolute',
-              top: '50%',
-              left: '50%',
-              transform: 'translate(-50%, -50%)'
-            }}>
-              <Loader2 className="spin" size={24} aria-hidden="true" style={{ color: 'var(--green)' }} />
+            <div className="loading-spinner">
+              <Loader2 className="spin" size={24} aria-hidden="true" />
             </div>
           </div>
-          <h2 style={{ 
-            fontSize: '20px', 
-            fontWeight: '700', 
-            color: 'var(--ink)',
-            marginBottom: '8px'
-          }}>
-            InterviewForge AI
-          </h2>
-          <p style={{ 
-            color: 'var(--muted)', 
-            fontSize: '14px',
-            marginTop: '0'
-          }}>
-            Loading your workspace...
-          </p>
-        </div>
+          <h2 className="loading-title">InterviewForge AI</h2>
+          <p>Loading your workspace...</p>
+        </section>
       </main>
     );
   }
@@ -61,4 +33,3 @@ export function RequireAuth() {
 
   return <Outlet />;
 }
-

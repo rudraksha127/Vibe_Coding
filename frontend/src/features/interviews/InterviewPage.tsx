@@ -1,6 +1,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { AlertCircle, Bot, CheckCircle2, Clock, MessageSquarePlus, Send, Sparkles, SquareCheckBig } from "lucide-react";
+import type { CSSProperties } from "react";
 import { useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -12,6 +13,7 @@ import {
   listInterviews,
   submitAnswer
 } from "../../lib/api/interviews";
+import { ROLE_PRESETS } from "../../lib/rolePresets";
 import { listResumes } from "../../lib/api/resumes";
 import type { InterviewQuestion, InterviewSession } from "../../types/api";
 
@@ -40,12 +42,6 @@ const LEVEL_NAMES: Record<string, string> = {
   L5: "Behavioral + Leadership",
   L6: "Hiring Manager",
   L7: "Team Match / VP"
-};
-
-const DIFFICULTY_COLORS: Record<string, string> = {
-  easy: "var(--green)",
-  medium: "var(--amber)",
-  hard: "var(--coral)"
 };
 
 export function InterviewPage() {
@@ -82,6 +78,7 @@ export function InterviewPage() {
     resolver: zodResolver(answerSchema),
     defaultValues: { answer: "" }
   });
+  const selectedRole = sessionForm.watch("targetRole");
 
   const createSessionMutation = useMutation({
     mutationFn: createInterview,
@@ -183,7 +180,7 @@ export function InterviewPage() {
 
       {showSuccessToast && (
         <div className="toast" role="status">
-          <CheckCircle2 size={18} style={{ color: 'var(--green)', marginRight: '8px' }} />
+          <CheckCircle2 size={18} className="toast-icon" />
           {showSuccessToast}
         </div>
       )}
@@ -210,10 +207,22 @@ export function InterviewPage() {
             <label>
               <span>Target role *</span>
               <input 
-                placeholder="e.g., Software Engineer"
+                placeholder="e.g., Site Reliability Engineer (SRE)"
                 {...sessionForm.register("targetRole")} 
               />
             </label>
+            <div className="role-picker" aria-label="Role presets">
+              {ROLE_PRESETS.map((role) => (
+                <button
+                  key={role.value}
+                  type="button"
+                  className={`role-chip${selectedRole === role.value ? " role-chip-active" : ""}`}
+                  onClick={() => sessionForm.setValue("targetRole", role.value, { shouldDirty: true, shouldValidate: true })}
+                >
+                  {role.label}
+                </button>
+              ))}
+            </div>
             <label>
               <span>Target companies</span>
               <input 
@@ -255,10 +264,8 @@ export function InterviewPage() {
           </form>
 
           {interviews.data && interviews.data.length > 0 && (
-            <div style={{ marginTop: '20px' }}>
-              <h3 style={{ fontSize: '13px', fontWeight: '700', marginBottom: '10px', color: 'var(--muted)', textTransform: 'uppercase' }}>
-                Recent Sessions
-              </h3>
+            <div className="section-spacer">
+              <h3 className="session-heading">Recent Sessions</h3>
               <div className="session-tabs" aria-label="Sessions">
                 {(interviews.data ?? []).slice(0, 5).map((session) => (
                   <button
@@ -267,10 +274,8 @@ export function InterviewPage() {
                     key={session._id}
                     onClick={() => setActiveSessionId(session._id)}
                   >
-                    <span style={{ marginRight: '8px' }}>{session.level}</span>
-                    <span style={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                      {session.targetRole}
-                    </span>
+                    <span className="session-level">{session.level}</span>
+                    <span className="session-title">{session.targetRole}</span>
                     <StatusDot status={session.status} />
                   </button>
                 ))}
@@ -293,19 +298,10 @@ export function InterviewPage() {
               </div>
             </div>
             <div>
-              <span style={{ fontSize: '12px', opacity: 0.8 }}>
-                {LEVEL_NAMES[activeSession?.level ?? "L1"] ?? "L1"}
-              </span>
+              <span className="interviewer-meta">{LEVEL_NAMES[activeSession?.level ?? "L1"] ?? "L1"}</span>
               <strong>{latestQuestion?.roundName ?? "Ready to start"}</strong>
             </div>
-            <b style={{ 
-              background: activeSession 
-                ? `rgba(${activeSession.currentDifficulty === 'easy' ? '38,112,93' : activeSession.currentDifficulty === 'medium' ? '185,120,24' : '181,79,66'}, 0.3)`
-                : 'rgba(240,193,90,0.2)',
-              color: activeSession
-                ? activeSession.currentDifficulty === 'easy' ? '#6ee7b7' : activeSession.currentDifficulty === 'medium' ? '#fbbf24' : '#fca5a5'
-                : '#ffe2a0'
-            }}>
+            <b className="difficulty-pill" style={getDifficultyPillStyle(activeSession?.currentDifficulty)}>
               {activeSession?.currentDifficulty ?? "ready"}
             </b>
           </div>
@@ -316,15 +312,8 @@ export function InterviewPage() {
               <>
                 <p>{latestQuestion.prompt}</p>
                 {latestQuestion.anchor && (
-                  <div style={{ 
-                    fontSize: '14px', 
-                    color: 'var(--muted)', 
-                    display: 'flex', 
-                    alignItems: 'center', 
-                    gap: '6px',
-                    marginTop: '-8px'
-                  }}>
-                    <AlertCircle size={14} />
+                  <div className="anchor-note">
+                    <AlertCircle size={14} aria-hidden="true" />
                     Anchored to your resume: {latestQuestion.anchor}
                   </div>
                 )}
@@ -337,14 +326,10 @@ export function InterviewPage() {
                 </div>
               </>
             ) : (
-              <div style={{ textAlign: 'center', padding: '20px' }}>
-                <Bot size={48} style={{ marginBottom: '16px', color: 'var(--muted)' }} />
-                <p style={{ fontSize: '16px', fontWeight: '600', marginBottom: '8px' }}>
-                  Create a session and generate a question
-                </p>
-                <p style={{ fontSize: '14px', color: 'var(--muted)' }}>
-                  Your AI interviewer is ready to begin
-                </p>
+              <div className="center-stack">
+                <Bot size={48} className="icon" aria-hidden="true" />
+                <p>Create a session and generate a question</p>
+                <small>Your AI interviewer is ready to begin</small>
               </div>
             )}
           </article>
@@ -361,11 +346,7 @@ export function InterviewPage() {
               {generateMutation.isPending ? "Generating..." : "Generate Question"}
             </button>
             {latestAttempt ? (
-              <span className={latestAttempt.feedback.passThresholdMet ? "pass-pill" : "retry-pill"} style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '6px'
-              }}>
+              <span className={`pill-row ${latestAttempt.feedback.passThresholdMet ? "pass-pill" : "retry-pill"}`}>
                 {latestAttempt.feedback.passThresholdMet ? (
                   <><CheckCircle2 size={14} /> Pass</>
                 ) : (
@@ -382,8 +363,8 @@ export function InterviewPage() {
               placeholder="Type your answer here... (minimum 10 characters)"
               {...answerForm.register("answer")} 
             />
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <span style={{ fontSize: '12px', color: 'var(--muted)' }}>
+            <div className="answer-meta">
+              <span className="answer-count">
                 {answerForm.watch("answer").length} / 10000 characters
               </span>
               <button 
@@ -414,72 +395,60 @@ export function InterviewPage() {
                 <ScoreLine label="Confidence" value={latestAttempt.scores.confidence} />
               </div>
               {latestAttempt.feedback.strong.length > 0 && (
-                <div style={{ marginTop: '8px' }}>
-                  <h4 style={{ fontSize: '13px', fontWeight: '700', marginBottom: '6px', color: 'var(--green-strong)' }}>
-                    ✓ Strong Points
-                  </h4>
+                <div className="feedback-section">
+                  <h4 className="feedback-title feedback-title-strong">Strong Points</h4>
                   {latestAttempt.feedback.strong.slice(0, 2).map((point, idx) => (
-                    <p key={idx} className="coaching-note" style={{ marginBottom: '4px', fontSize: '13px' }}>
+                    <p key={idx} className="coaching-note note-compact">
                       {point}
                     </p>
                   ))}
                 </div>
               )}
               {latestAttempt.feedback.weak.length > 0 && (
-                <div style={{ marginTop: '8px' }}>
-                  <h4 style={{ fontSize: '13px', fontWeight: '700', marginBottom: '6px', color: 'var(--amber)' }}>
-                    ⚠ Areas to Improve
-                  </h4>
+                <div className="feedback-section">
+                  <h4 className="feedback-title feedback-title-weak">Areas to Improve</h4>
                   {latestAttempt.feedback.weak.slice(0, 2).map((point, idx) => (
-                    <p key={idx} className="model-answer" style={{ marginBottom: '4px', fontSize: '13px' }}>
+                    <p key={idx} className="model-answer note-compact">
                       {point}
                     </p>
                   ))}
                 </div>
               )}
               <p className="coaching-note">
-                <strong>💡 Tip:</strong> {latestAttempt.feedback.improvementTip}
+                <strong>Tip:</strong> {latestAttempt.feedback.improvementTip}
               </p>
               <p className="model-answer">
-                <strong style={{ display: 'block', marginBottom: '4px' }}>📝 Model Answer:</strong>
+                <strong className="model-answer-title">Model Answer</strong>
                 {latestAttempt.feedback.modelAnswer}
               </p>
             </>
           ) : activeSession?.scorecard ? (
             <>
               <MetricRing value={activeSession.scorecard.interviewReadinessScore} label="IRS" />
-              <div style={{ marginTop: '12px' }}>
+              <div className="scorecard-block">
                 <div className="score-line">
                   <span>Strongest Area</span>
-                  <strong style={{ color: 'var(--green-strong)' }}>{activeSession.scorecard.strongestArea}</strong>
+                  <strong className="scorecard-strong">{activeSession.scorecard.strongestArea}</strong>
                 </div>
                 <div className="score-line">
                   <span>Weakest Area</span>
-                  <strong style={{ color: 'var(--coral)' }}>{activeSession.scorecard.weakestArea}</strong>
+                  <strong className="scorecard-weak">{activeSession.scorecard.weakestArea}</strong>
                 </div>
               </div>
-              <div style={{ marginTop: '12px' }}>
-                <h4 style={{ fontSize: '13px', fontWeight: '700', marginBottom: '8px', color: 'var(--ink)' }}>
-                  Next Steps
-                </h4>
+              <div className="scorecard-next">
+                <h4 className="scorecard-next-title">Next Steps</h4>
                 {activeSession.scorecard.nextSteps.map((step, idx) => (
-                  <p className="coaching-note" key={idx} style={{ marginBottom: '6px', fontSize: '13px' }}>
+                  <p className="coaching-note note-compact" key={idx}>
                     {step}
                   </p>
                 ))}
               </div>
             </>
           ) : (
-            <div style={{ 
-              textAlign: 'center', 
-              padding: '40px 20px', 
-              color: 'var(--muted)' 
-            }}>
-              <Sparkles size={32} style={{ marginBottom: '12px', opacity: 0.5 }} />
-              <p style={{ fontWeight: '600' }}>No feedback yet</p>
-              <p style={{ fontSize: '13px', marginTop: '4px' }}>
-                Submit an answer to receive AI feedback
-              </p>
+            <div className="empty-state panel-loading">
+              <Sparkles size={32} className="resume-empty-icon" />
+              <p>No feedback yet</p>
+              <small>Submit an answer to receive AI feedback</small>
             </div>
           )}
         </div>
@@ -498,7 +467,9 @@ function ScoreLine({ label, value }: { label: string; value: number }) {
   return (
     <div className="score-line">
       <span>{label}</span>
-      <strong style={{ color: getColor(value) }}>{value}/100</strong>
+      <strong className="score-value" style={{ "--score-color": getColor(value) } as CSSProperties}>
+        {value}/100
+      </strong>
     </div>
   );
 }
@@ -506,12 +477,23 @@ function ScoreLine({ label, value }: { label: string; value: number }) {
 function StatusDot({ status }: { status: string }) {
   const color = status === 'completed' ? 'var(--green)' : status === 'in_progress' ? 'var(--blue)' : 'var(--muted)';
   return (
-    <span style={{ 
-      width: '8px', 
-      height: '8px', 
-      borderRadius: '50%', 
-      background: color,
-      flexShrink: 0
-    }} />
+    <span className="status-dot" style={{ "--dot-color": color } as CSSProperties} />
   );
+}
+
+function getDifficultyPillStyle(difficulty: string | undefined): CSSProperties {
+  const config: Partial<Record<string, { bg: string; color: string }>> = {
+    easy: { bg: "rgba(14, 165, 233, 0.22)", color: "var(--green-strong)" },
+    medium: { bg: "rgba(245, 158, 11, 0.18)", color: "var(--amber)" },
+    hard: { bg: "rgba(239, 68, 68, 0.18)", color: "var(--coral)" },
+    ready: { bg: "rgba(245, 158, 11, 0.14)", color: "var(--gold)" }
+  };
+
+  const fallback = { bg: "rgba(245, 158, 11, 0.14)", color: "var(--gold)" };
+  const selected = config[difficulty ?? "ready"] ?? fallback;
+
+  return {
+    "--difficulty-bg": selected.bg,
+    "--difficulty-color": selected.color
+  } as CSSProperties;
 }
