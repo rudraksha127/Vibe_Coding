@@ -1,11 +1,12 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { BrainCircuit, CheckCircle2, GitBranch, LogIn, Mail, Sparkles, UserPlus } from "lucide-react";
+import { BrainCircuit, CheckCircle2, GitBranch, LogIn, Sparkles, UserPlus } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { Link, Navigate, useNavigate } from "react-router-dom";
 import { z } from "zod";
 import { useAuth } from "../../auth/AuthProvider";
 import { ApiClientError } from "../../lib/api/client";
+import { ROLE_PRESETS } from "../../lib/rolePresets";
 
 const loginSchema = z.object({
   email: z.string().email("Please enter a valid email address"),
@@ -57,7 +58,7 @@ export function LoginPage() {
           <BrainCircuit size={32} aria-hidden="true" />
           <div>
             <h1 id="login-title">InterviewForge AI</h1>
-            <p>Your AI interview coach</p>
+            <p>Role-ready practice for SRE, DevOps, QA, and engineers</p>
           </div>
         </div>
 
@@ -115,6 +116,7 @@ export function RegisterPage() {
       targetCompanies: ""
     }
   });
+  const selectedRole = form.watch("targetRole");
 
   if (user) {
     return <Navigate to="/" replace />;
@@ -171,8 +173,20 @@ export function RegisterPage() {
           </label>
           <label>
             <span>Target role</span>
-            <input placeholder="Software Engineer" {...form.register("targetRole")} />
+            <input placeholder="e.g., Site Reliability Engineer (SRE)" {...form.register("targetRole")} />
           </label>
+          <div className="grid-span role-picker" aria-label="Role presets">
+            {ROLE_PRESETS.map((role) => (
+              <button
+                key={role.value}
+                type="button"
+                className={`role-chip${selectedRole === role.value ? " role-chip-active" : ""}`}
+                onClick={() => form.setValue("targetRole", role.value, { shouldDirty: true, shouldValidate: true })}
+              >
+                {role.label}
+              </button>
+            ))}
+          </div>
           <label>
             <span>Experience level</span>
             <select {...form.register("experienceLevel")}>
@@ -226,21 +240,10 @@ function InterviewPreview() {
           <strong>84</strong>
           <span>Interview Readiness Score</span>
         </div>
-        <CheckCircle2 size={24} aria-hidden="true" style={{ color: 'var(--green)' }} />
+        <CheckCircle2 size={24} aria-hidden="true" className="accent-icon" />
       </div>
-      <div style={{
-        position: 'absolute',
-        bottom: '90px',
-        left: '28px',
-        right: '28px',
-        padding: '12px',
-        borderRadius: '8px',
-        background: 'rgba(255,255,255,0.9)',
-        fontSize: '13px',
-        lineHeight: '1.5',
-        color: 'var(--ink)'
-      }}>
-        <strong style={{ display: 'block', marginBottom: '4px', color: 'var(--green-strong)' }}>AI-Powered Practice</strong>
+      <div className="preview-note">
+        <strong className="preview-note-title">AI-Powered Practice</strong>
         Get personalized feedback, adaptive questions, and track your improvement over time.
       </div>
     </aside>
