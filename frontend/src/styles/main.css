@@ -164,6 +164,11 @@ button:not(:disabled):active {
   backdrop-filter: blur(8px);
 }
 
+.status-panel {
+  padding: 32px;
+  box-shadow: var(--shadow-lg);
+}
+
 .auth-panel:hover,
 .panel:hover {
   box-shadow: var(--shadow-lg);
@@ -1079,11 +1084,6 @@ textarea::placeholder {
   font-weight: 850;
   color: var(--ink);
   margin-bottom: 8px;
-}
-
-.status-panel {
-  padding: 32px;
-  box-shadow: var(--shadow-lg);
 }
 
 .status-panel-tight {
