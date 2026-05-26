@@ -2,6 +2,10 @@ import { sendSuccess } from "../../utils/apiResponse.js";
 import { asyncHandler } from "../../utils/asyncHandler.js";
 import { getRequestUser } from "../../utils/requestUser.js";
 import * as userService from "./user.service.js";
+export const createUser = asyncHandler(async (req, res) => {
+    const user = getRequestUser(req);
+    sendSuccess(res, await userService.createUser(req.body, user.email), 201);
+});
 export const getMe = asyncHandler(async (req, res) => {
     const user = getRequestUser(req);
     sendSuccess(res, await userService.getMe(user.id));

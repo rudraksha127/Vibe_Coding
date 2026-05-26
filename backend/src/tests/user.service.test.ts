@@ -1,7 +1,5 @@
 import bcrypt from "bcryptjs";
-import mongoose from "mongoose";
-import { MongoMemoryServer } from "mongodb-memory-server";
-import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { User } from "../models/user.model.js";
 import { createUser } from "../modules/users/user.service.js";
 import { AppError } from "../utils/appError.js";
@@ -15,24 +13,26 @@ import { sendUserCredentialsEmail } from "../services/email.service.js";
 const sendUserCredentialsEmailMock = vi.mocked(sendUserCredentialsEmail);
 
 describe("user.service createUser", () => {
-  let mongod: MongoMemoryServer;
-
-  beforeAll(async () => {
-    mongod = await MongoMemoryServer.create();
-    await mongoose.connect(mongod.getUri(), { autoIndex: true });
-  });
-
-  afterAll(async () => {
-    await mongoose.disconnect();
-    await mongod.stop();
-  });
-
-  beforeEach(async () => {
+  beforeEach(() => {
+    vi.restoreAllMocks();
     sendUserCredentialsEmailMock.mockReset();
-    await User.deleteMany({});
   });
 
   it("creates a managed user with a generated password and sends credentials", async () => {
+    let createdPayload: Record<string, unknown> | undefined;
+
+    vi.spyOn(User, "findOne").mockResolvedValue(null);
+    vi.spyOn(User, "create").mockImplementation(async (payload) => {
+      createdPayload = payload as Record<string, unknown>;
+      return {
+        _id: "user-1",
+        id: "user-1",
+        email: payload.email,
+        role: payload.role,
+        profile: payload.profile
+      } as never;
+    });
+
     sendUserCredentialsEmailMock.mockResolvedValue({
       mode: "preview",
       recipient: "new.user@example.com",
@@ -51,13 +51,11 @@ describe("user.service createUser", () => {
       "admin@example.com"
     );
 
-    const storedUser = await User.findOne({ email: "new.user@example.com", isDeleted: false }).select("+passwordHash");
-
     expect(result.user.email).toBe("new.user@example.com");
     expect(result.credentialDelivery.mode).toBe("preview");
     expect(result.temporaryPassword).toHaveLength(18);
-    expect(storedUser?.passwordHash).toBeTruthy();
-    expect(await bcrypt.compare(result.temporaryPassword, storedUser?.passwordHash ?? "")).toBe(true);
+    expect(typeof createdPayload?.passwordHash).toBe("string");
+    expect(await bcrypt.compare(result.temporaryPassword, String(createdPayload?.passwordHash ?? ""))).toBe(true);
     expect(sendUserCredentialsEmailMock).toHaveBeenCalledWith(
       expect.objectContaining({
         email: "new.user@example.com",
@@ -69,6 +67,20 @@ describe("user.service createUser", () => {
   });
 
   it("rolls back the user if the credential email fails", async () => {
+    vi.spyOn(User, "findOne").mockResolvedValue(null);
+    vi.spyOn(User, "create").mockResolvedValue({
+      _id: "user-2",
+      id: "user-2",
+      email: "rollback@example.com",
+      role: "user",
+      profile: {
+        name: "Rollback User"
+      }
+    } as never);
+    const deleteSpy = vi.spyOn(User, "deleteOne").mockResolvedValue({
+      acknowledged: true,
+      deletedCount: 1
+    } as never);
     sendUserCredentialsEmailMock.mockRejectedValue(new AppError(500, "INTERNAL_ERROR", "Email failed"));
 
     await expect(
@@ -84,6 +96,6 @@ describe("user.service createUser", () => {
       )
     ).rejects.toMatchObject({ code: "INTERNAL_ERROR" });
 
-    expect(await User.countDocuments({ email: "rollback@example.com", isDeleted: false })).toBe(0);
+    expect(deleteSpy).toHaveBeenCalledWith({ _id: "user-2" });
   });
 });

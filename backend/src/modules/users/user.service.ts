@@ -45,7 +45,7 @@ export async function createUser(input: CreateUserInput, createdByEmail: string)
   try {
     const credentialDelivery = await sendUserCredentialsEmail({
       email: user.email,
-      name: user.profile.name || user.email,
+      name: user.profile?.name || user.email,
       temporaryPassword,
       loginUrl: env.APP_LOGIN_URL,
       createdByEmail
