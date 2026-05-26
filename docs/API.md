@@ -94,6 +94,25 @@ Revokes a session owned by the user.
 
 ## Users
 
+### POST /api/v1/users
+
+Auth required: Yes (`admin` role)
+
+Body:
+
+```json
+{
+  "email": "new.user@example.com",
+  "role": "user",
+  "profile": {
+    "name": "New User",
+    "targetRole": "QA Engineer"
+  }
+}
+```
+
+Creates a user with an auto-generated password, returns that password once, and sends the login details by email. Uses SMTP when configured and falls back to preview delivery outside production.
+
 ### GET /api/v1/users/me
 
 Auth required: Yes
@@ -245,4 +264,3 @@ Builds the final scorecard.
 Auth required: Yes
 
 Soft-deletes the session.
-

@@ -1,10 +1,66 @@
+import crypto from "node:crypto";
+import bcrypt from "bcryptjs";
+import { env } from "../../config/env.js";
 import { AuthSession } from "../../models/authSession.model.js";
 import { InterviewSession } from "../../models/interviewSession.model.js";
 import { Resume } from "../../models/resume.model.js";
 import { User } from "../../models/user.model.js";
+import type { CredentialDelivery } from "../../services/email.service.js";
+import { sendUserCredentialsEmail } from "../../services/email.service.js";
 import { AppError } from "../../utils/appError.js";
 import { toSafeUser } from "../auth/auth.service.js";
-import type { UpdateMeInput } from "./user.schema.js";
+import type { CreateUserInput, UpdateMeInput } from "./user.schema.js";
+
+type CreateUserResult = {
+  user: ReturnType<typeof toSafeUser>;
+  temporaryPassword: string;
+  credentialDelivery: CredentialDelivery;
+};
+
+export async function createUser(input: CreateUserInput, createdByEmail: string): Promise<CreateUserResult> {
+  const existingUser = await User.findOne({ email: input.email, isDeleted: false });
+  if (existingUser) {
+    throw new AppError(409, "CONFLICT", "An account already exists for this email");
+  }
+
+  const temporaryPassword = generateTemporaryPassword();
+  const passwordHash = await bcrypt.hash(temporaryPassword, env.BCRYPT_COST);
+  const user = await User.create({
+    email: input.email,
+    passwordHash,
+    role: input.role,
+    profile: {
+      name: input.profile.name,
+      targetRole: input.profile.targetRole ?? "",
+      experienceLevel: input.profile.experienceLevel ?? "fresh_graduate",
+      targetCompanies: input.profile.targetCompanies ?? [],
+      preferredLanguage: input.profile.preferredLanguage ?? "en",
+      timezone: input.profile.timezone ?? "UTC",
+      dressCodePreference: input.profile.dressCodePreference ?? "business_casual",
+      photoUrl: input.profile.photoUrl ?? ""
+    },
+    authProviders: [{ provider: "password", connectedAt: new Date() }]
+  });
+
+  try {
+    const credentialDelivery = await sendUserCredentialsEmail({
+      email: user.email,
+      name: user.profile.name || user.email,
+      temporaryPassword,
+      loginUrl: env.APP_LOGIN_URL,
+      createdByEmail
+    });
+
+    return {
+      user: toSafeUser(user),
+      temporaryPassword,
+      credentialDelivery
+    };
+  } catch (error) {
+    await User.deleteOne({ _id: user._id });
+    throw error;
+  }
+}
 
 export async function getMe(userId: string) {
   const user = await User.findOne({ _id: userId, isDeleted: false });
@@ -80,3 +136,7 @@ export async function deleteMe(userId: string): Promise<void> {
   ]);
 }
 
+function generateTemporaryPassword(): string {
+  const alphabet = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789!@#$%^&*";
+  return Array.from(crypto.randomBytes(18), (byte) => alphabet[byte % alphabet.length]).join("");
+}

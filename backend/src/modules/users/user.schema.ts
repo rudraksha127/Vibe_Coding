@@ -1,6 +1,21 @@
 import { z } from "zod";
 import { dressCodePreferences, experienceLevels } from "../../models/user.model.js";
 
+export const createUserBodySchema = z.object({
+  email: z.string().trim().toLowerCase().email(),
+  role: z.enum(["user", "admin"]).default("user"),
+  profile: z.object({
+    name: z.string().trim().min(1).max(120),
+    targetRole: z.string().trim().min(1).max(120).optional(),
+    experienceLevel: z.enum(experienceLevels).optional(),
+    targetCompanies: z.array(z.string().trim().min(1).max(80)).max(10).optional(),
+    preferredLanguage: z.string().trim().min(2).max(12).optional(),
+    timezone: z.string().trim().min(1).max(80).optional(),
+    dressCodePreference: z.enum(dressCodePreferences).optional(),
+    photoUrl: z.string().trim().url().optional().or(z.literal(""))
+  })
+});
+
 export const updateMeBodySchema = z.object({
   profile: z
     .object({
@@ -27,5 +42,5 @@ export const deleteMeBodySchema = z.object({
   confirmationText: z.literal("DELETE MY ACCOUNT")
 });
 
+export type CreateUserInput = z.infer<typeof createUserBodySchema>;
 export type UpdateMeInput = z.infer<typeof updateMeBodySchema>;
-

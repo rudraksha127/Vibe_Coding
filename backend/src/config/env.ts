@@ -35,12 +35,20 @@ const envSchema = z.object({
   JWT_REFRESH_EXPIRES_IN: z.string().default("7d"),
   REFRESH_COOKIE_NAME: z.string().min(1).default("if_refresh"),
   BCRYPT_COST: z.coerce.number().int().min(10).max(15).default(12),
+  APP_LOGIN_URL: z.url().default("http://127.0.0.1:5173/login"),
   ENCRYPTION_KEY: z
     .string()
     .regex(/^[a-fA-F0-9]{64}$/, "ENCRYPTION_KEY must be 32 bytes as 64 hex chars")
     .default("0000000000000000000000000000000000000000000000000000000000000000"),
   CORS_ORIGINS: requiredInRuntime("CORS_ORIGINS is required", "http://localhost:5173"),
   MAX_FILE_SIZE_MB: z.coerce.number().positive().max(25).default(5),
+  SMTP_HOST: z.string().optional(),
+  SMTP_PORT: z.coerce.number().int().positive().optional(),
+  SMTP_SECURE: z.coerce.boolean().default(false),
+  SMTP_USER: z.string().optional(),
+  SMTP_PASS: z.string().optional(),
+  SMTP_FROM_EMAIL: z.string().email().optional(),
+  SMTP_FROM_NAME: z.string().default("InterviewForge AI"),
   ANTHROPIC_API_KEY: z.string().optional(),
   ANTHROPIC_MODEL: z.string().optional(),
   OPENAI_API_KEY: z.string().optional(),
