@@ -2,22 +2,22 @@
   color-scheme: light;
   font-family:
     Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  color: #1a1a2e;
-  background: #f8fafc;
+  color: #0b1220;
+  background: #f6f7fb;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   --paper: #ffffff;
-  --paper-strong: #f8fafc;
-  --ink: #1a1a2e;
-  --ink-light: #475569;
+  --paper-strong: #f6f7fb;
+  --ink: #0b1220;
+  --ink-light: #334155;
   --muted: #64748b;
   --line: #e2e8f0;
   --line-strong: #cbd5e1;
-  --green: #059669;
-  --green-strong: #047857;
-  --green-light: #d1fae5;
-  --mint: #ecfdf5;
+  --green: #38bdf8;
+  --green-strong: #0ea5e9;
+  --green-light: #e0f2fe;
+  --mint: #f0f9ff;
   --coral: #dc2626;
   --coral-light: #fef2f2;
   --amber: #d97706;
@@ -27,49 +27,61 @@
   --blue-light: #dbeafe;
   --purple: #7c3aed;
   --purple-light: #ede9fe;
-  --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  --shadow-sm: 0 1px 2px rgba(2, 6, 23, 0.06), 0 0 0 1px rgba(2, 6, 23, 0.04);
+  --shadow: 0 8px 20px rgba(2, 6, 23, 0.08), 0 2px 8px rgba(2, 6, 23, 0.06);
+  --shadow-md: 0 12px 28px rgba(2, 6, 23, 0.12), 0 3px 10px rgba(2, 6, 23, 0.08);
+  --shadow-lg: 0 18px 44px rgba(2, 6, 23, 0.16), 0 4px 14px rgba(2, 6, 23, 0.1);
+  --shadow-xl: 0 28px 70px rgba(2, 6, 23, 0.22), 0 8px 22px rgba(2, 6, 23, 0.14);
   --radius-sm: 6px;
   --radius-md: 10px;
   --radius-lg: 16px;
   --radius-xl: 24px;
   --transition: 250ms cubic-bezier(0.4, 0, 0.2, 1);
-  --gradient-primary: linear-gradient(135deg, #047857 0%, #059669 100%);
-  --gradient-warm: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
-  --gradient-cool: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+  --gradient-primary: linear-gradient(135deg, #0ea5e9 0%, #8b5cf6 100%);
+  --gradient-warm: linear-gradient(135deg, #f59e0b 0%, #ef4444 100%);
+  --gradient-cool: linear-gradient(135deg, #22c55e 0%, #0ea5e9 100%);
+  --app-bg:
+    radial-gradient(1200px circle at 12% 0%, rgba(14, 165, 233, 0.16), transparent 48%),
+    radial-gradient(900px circle at 86% 18%, rgba(139, 92, 246, 0.14), transparent 46%),
+    radial-gradient(800px circle at 55% 105%, rgba(245, 158, 11, 0.1), transparent 42%),
+    #f6f7fb;
 }
 
 /* Dark mode support */
 @media (prefers-color-scheme: dark) {
   :root {
     color-scheme: dark;
-    --paper: #1e293b;
-    --paper-strong: #0f172a;
-    --ink: #f1f5f9;
+    --paper: #0f172a;
+    --paper-strong: #0b1220;
+    --ink: #e5e7eb;
     --ink-light: #cbd5e1;
     --muted: #94a3b8;
-    --line: #334155;
-    --line-strong: #475569;
-    --green: #10b981;
-    --green-strong: #059669;
-    --green-light: #064e3b;
-    --mint: #064e3b;
+    --line: rgba(148, 163, 184, 0.18);
+    --line-strong: rgba(148, 163, 184, 0.28);
+    --green: #38bdf8;
+    --green-strong: #7dd3fc;
+    --green-light: rgba(14, 165, 233, 0.18);
+    --mint: rgba(14, 165, 233, 0.12);
     --coral: #ef4444;
-    --coral-light: #450a0a;
+    --coral-light: rgba(239, 68, 68, 0.14);
     --amber: #f59e0b;
-    --amber-light: #451a03;
+    --amber-light: rgba(245, 158, 11, 0.16);
     --gold: #fbbf24;
-    --blue: #3b82f6;
-    --blue-light: #1e3a8a;
-    --purple: #8b5cf6;
-    --purple-light: #1e1b4b;
-    --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
-    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.2);
-    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -2px rgba(0, 0, 0, 0.2);
-    --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.4), 0 10px 10px -5px rgba(0, 0, 0, 0.3);
-    background: #020617;
+    --blue: #60a5fa;
+    --blue-light: rgba(59, 130, 246, 0.16);
+    --purple: #a78bfa;
+    --purple-light: rgba(139, 92, 246, 0.18);
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(255, 255, 255, 0.06);
+    --shadow: 0 10px 24px rgba(0, 0, 0, 0.48), 0 2px 10px rgba(0, 0, 0, 0.36);
+    --shadow-md: 0 16px 40px rgba(0, 0, 0, 0.56), 0 4px 14px rgba(0, 0, 0, 0.4);
+    --shadow-lg: 0 22px 54px rgba(0, 0, 0, 0.6), 0 6px 18px rgba(0, 0, 0, 0.44);
+    --shadow-xl: 0 32px 80px rgba(0, 0, 0, 0.68), 0 10px 26px rgba(0, 0, 0, 0.52);
+    --app-bg:
+      radial-gradient(1200px circle at 12% 0%, rgba(14, 165, 233, 0.18), transparent 50%),
+      radial-gradient(900px circle at 86% 18%, rgba(139, 92, 246, 0.16), transparent 48%),
+      radial-gradient(800px circle at 55% 105%, rgba(245, 158, 11, 0.12), transparent 44%),
+      #050b18;
+    background: #050b18;
   }
 }
 
@@ -81,6 +93,8 @@ body {
   min-width: 320px;
   min-height: 100vh;
   margin: 0;
+  background: var(--app-bg);
+  color: var(--ink);
 }
 
 button,
@@ -187,7 +201,7 @@ button:not(:disabled):active {
 .brand-lockup svg,
 .sidebar-brand svg {
   color: var(--green-strong);
-  filter: drop-shadow(0 2px 4px rgba(4, 120, 87, 0.2));
+  filter: drop-shadow(0 2px 4px rgba(14, 165, 233, 0.22));
 }
 
 h1,
@@ -289,7 +303,7 @@ input:focus,
 select:focus,
 textarea:focus {
   border-color: var(--green-strong);
-  box-shadow: 0 0 0 4px rgba(4, 120, 87, 0.12);
+  box-shadow: 0 0 0 4px rgba(14, 165, 233, 0.18);
   outline: none;
 }
 
@@ -335,13 +349,13 @@ textarea::placeholder {
   padding: 0 20px;
   font-weight: 600;
   border: none;
-  box-shadow: 0 2px 8px rgba(4, 120, 87, 0.2);
+  box-shadow: 0 10px 26px rgba(14, 165, 233, 0.22), 0 4px 12px rgba(139, 92, 246, 0.14);
 }
 
 .primary-button:not(:disabled):hover,
 .primary-link:hover {
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(4, 120, 87, 0.3);
+  box-shadow: 0 16px 36px rgba(14, 165, 233, 0.26), 0 6px 16px rgba(139, 92, 246, 0.16);
 }
 
 .primary-button:not(:disabled):active,
@@ -403,8 +417,8 @@ textarea::placeholder {
   border-radius: var(--radius-xl);
   background:
     linear-gradient(180deg, rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0.3)),
-    repeating-linear-gradient(90deg, rgba(4, 120, 87, 0.06), rgba(4, 120, 87, 0.06) 1px, transparent 1px, transparent 80px),
-    linear-gradient(135deg, #ecfdf5 0%, #f0fdf4 50%, #fef3c7 100%);
+    repeating-linear-gradient(90deg, rgba(14, 165, 233, 0.06), rgba(14, 165, 233, 0.06) 1px, transparent 1px, transparent 80px),
+    linear-gradient(135deg, #f0f9ff 0%, #f5f3ff 50%, #fef3c7 100%);
   overflow: hidden;
   box-shadow: var(--shadow-xl), inset 0 1px 0 rgba(255, 255, 255, 0.8);
 }
@@ -416,7 +430,7 @@ textarea::placeholder {
   place-items: center;
   border-radius: var(--radius-xl);
   background: linear-gradient(145deg, #1e293b 0%, #0f172a 100%);
-  box-shadow: var(--shadow-xl), 0 0 60px rgba(4, 120, 87, 0.15);
+  box-shadow: var(--shadow-xl), 0 0 60px rgba(14, 165, 233, 0.18);
 }
 
 .avatar-head {
@@ -587,19 +601,19 @@ textarea::placeholder {
 }
 
 .sidebar nav a:hover {
-  background: rgba(4, 120, 87, 0.08);
+  background: rgba(14, 165, 233, 0.1);
   color: var(--green-strong);
 }
 
 .sidebar nav a.active {
   background: var(--gradient-primary);
   color: #ffffff;
-  box-shadow: 0 2px 8px rgba(4, 120, 87, 0.25);
+  box-shadow: 0 12px 28px rgba(14, 165, 233, 0.22), 0 6px 14px rgba(139, 92, 246, 0.14);
 }
 
 .sidebar nav a.active:hover {
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(4, 120, 87, 0.35);
+  box-shadow: 0 18px 44px rgba(14, 165, 233, 0.26), 0 8px 18px rgba(139, 92, 246, 0.16);
 }
 
 .sidebar-footer {
@@ -792,13 +806,13 @@ textarea::placeholder {
 .signal-chip {
   background: var(--green-light);
   color: var(--green-strong);
-  border: 1px solid rgba(4, 120, 87, 0.15);
+  border: 1px solid rgba(14, 165, 233, 0.22);
 }
 
 .pass-pill {
   background: var(--green-light);
   color: var(--green-strong);
-  border: 1px solid rgba(4, 120, 87, 0.2);
+  border: 1px solid rgba(14, 165, 233, 0.26);
 }
 
 .retry-pill {
@@ -974,7 +988,7 @@ textarea::placeholder {
   background: var(--gradient-primary);
   color: #ffffff;
   font-weight: 600;
-  box-shadow: 0 2px 8px rgba(4, 120, 87, 0.2);
+  box-shadow: 0 12px 28px rgba(14, 165, 233, 0.18), 0 6px 16px rgba(139, 92, 246, 0.12);
 }
 
 .spin {
@@ -1120,7 +1134,7 @@ html {
 
 /* Selection styling */
 ::selection {
-  background: rgba(4, 120, 87, 0.2);
+  background: rgba(14, 165, 233, 0.22);
   color: var(--ink);
 }
 
