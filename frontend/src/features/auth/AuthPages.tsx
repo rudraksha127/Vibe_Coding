@@ -181,6 +181,7 @@ export function RegisterPage() {
                 key={role.value}
                 type="button"
                 className={`role-chip${selectedRole === role.value ? " role-chip-active" : ""}`}
+                aria-pressed={selectedRole === role.value}
                 onClick={() => form.setValue("targetRole", role.value, { shouldDirty: true, shouldValidate: true })}
               >
                 {role.label}

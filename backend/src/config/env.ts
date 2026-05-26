@@ -13,6 +13,11 @@ const requiredInRuntime = (message: string, fallback: string) =>
 const jwtSecretInRuntime = (message: string, fallback: string) =>
   isTestEnvironment ? z.string().min(64, message).default(fallback) : z.string().min(64, message);
 
+const encryptionKeyInRuntime = (message: string, fallback: string) =>
+  isTestEnvironment
+    ? z.string().regex(/^[a-fA-F0-9]{64}$/, message).default(fallback)
+    : z.string().regex(/^[a-fA-F0-9]{64}$/, message);
+
 const envSchema = z.object({
   NODE_ENV: z
     .enum(["development", "test", "production"])
@@ -35,10 +40,10 @@ const envSchema = z.object({
   JWT_REFRESH_EXPIRES_IN: z.string().default("7d"),
   REFRESH_COOKIE_NAME: z.string().min(1).default("if_refresh"),
   BCRYPT_COST: z.coerce.number().int().min(10).max(15).default(12),
-  ENCRYPTION_KEY: z
-    .string()
-    .regex(/^[a-fA-F0-9]{64}$/, "ENCRYPTION_KEY must be 32 bytes as 64 hex chars")
-    .default("0000000000000000000000000000000000000000000000000000000000000000"),
+  ENCRYPTION_KEY: encryptionKeyInRuntime(
+    "ENCRYPTION_KEY must be 32 bytes as 64 hex chars",
+    "0000000000000000000000000000000000000000000000000000000000000000"
+  ),
   CORS_ORIGINS: requiredInRuntime("CORS_ORIGINS is required", "http://localhost:5173"),
   MAX_FILE_SIZE_MB: z.coerce.number().positive().max(25).default(5),
   ANTHROPIC_API_KEY: z.string().optional(),
